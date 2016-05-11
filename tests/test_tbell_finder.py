@@ -1,5 +1,5 @@
-from ..views import (
-    nearest_tbell
+from ..utils import (
+    nearest_tbell, haversine_distance
 )
 
 tbells = [
@@ -47,3 +47,17 @@ tbells = [
 def test_distance(tbells=tbells):
     start = (-75.210149, 39.951)
     assert nearest_tbell(start, tbells) == tbells[0]
+
+def test_haversine():
+    """
+    Result from http://www.movable-type.co.uk/scripts/latlong.html for
+    (-75.210149, 39.951) to (-75.153687, 39.999774), after conversion
+    to miles:
+
+    4.505
+    """
+
+    p1 = (-75.210149, 39.951)
+    p2 = (-75.153687, 39.999774)
+
+    assert round(haversine_distance(p1, p2), 3) == 4.505
