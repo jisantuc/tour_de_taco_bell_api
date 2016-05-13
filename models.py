@@ -4,6 +4,7 @@ from sqlalchemy import (
 )
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
+from wtforms import Form, TextField, IntegerField, validators
 
 Base = declarative_base()
 
@@ -38,3 +39,12 @@ class Result(Base):
             # go get the route from google maps, add all that info to db
             pass
 
+class RouteForm(Form):
+    address = TextField(
+        'Start Address',
+        [validators.Length(min=15, max=200), validators.Required()]
+    )
+    desired_route_distance = IntegerField(
+        'Tour de Taco Bell Length',
+        [validators.Required(), validators.NumberRange(min=5, max=75)]
+    )

@@ -45,7 +45,7 @@ tbells = [
 ]
 
 def test_distance(tbells=tbells):
-    start = (-75.210149, 39.951)
+    start = (39.951, -75.210149)
     assert nearest_tbell(start, tbells) == tbells[0]
 
 def test_haversine():
@@ -57,7 +57,7 @@ def test_haversine():
     4.505
     """
 
-    p1 = (-75.210149, 39.951)
-    p2 = (-75.153687, 39.999774)
+    p1 = (39.951, -75.210149)
+    p2 = (39.999774, -75.153687)
 
     assert round(haversine_distance(p1, p2), 3) == 4.505
