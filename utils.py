@@ -55,7 +55,7 @@ def tbell_finder(start_lat_lon, client):
     # 40233.6 is 25 miles in meters
     response = client.places("taco bell", location=start_lat_lon,
                              radius=40233.6)
-    if response['status'] != u'OK':
+    if response['status'] == 'OK':
         return response['results']
     else:
         return 'error -- %s' % response['status']
@@ -87,15 +87,15 @@ def choose_next_tbell(home_lat_lon, start_lat_lon, tbell_list,
     def pen(p):
         route_dist = (cumul_dist + haversine_distance(p, start_lat_lon) +
                       haversine_distance(p, home_lat_lon))
-        return route_dist, abs(target - route_dist)
+        return route_dist, abs(int(target_dist) - route_dist)
 
 
-    closest_three_tbells = sorted(
+    closest_two_tbells = sorted(
         tbell_list,
         key=lambda x: haversine_distance(start_lat_lon, lat_lon_from_tbell(x))
-    )[:3]
+    )[:2]
 
-    pens = [(pen(x), x) for x in closest_three_tbells]
+    pens = [(pen(lat_lon_from_tbell(x)), x) for x in closest_two_tbells]
 
     return sorted(pens, key=lambda x: x[0][1])[0]
 
@@ -113,7 +113,7 @@ def choose_tbell_sequence(home_lat_lon, tbell_list, target_dist):
 
     while pen > TOLERANCE:
         # don't want to choose more taco bells if we're already past target
-        if cumul_dist > target:
+        if cumul_dist > int(target_dist) or not tbell_list:
             break
         pen_tup, next_tbell = choose_next_tbell(
             home_lat_lon,
@@ -125,7 +125,7 @@ def choose_tbell_sequence(home_lat_lon, tbell_list, target_dist):
         tbell_list.pop(tbell_list.index(next_tbell))
         cur_lat_lon = lat_lon_from_tbell(next_tbell)
         path.append(cur_lat_lon)
-        pen, cumul_dist = pen_tup
+        cumul_dist, pen = pen_tup
 
     path.append(home_lat_lon)
     return path
