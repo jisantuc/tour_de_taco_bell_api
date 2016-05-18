@@ -2,9 +2,9 @@ from flask import (
     Flask, url_for, render_template, request, jsonify
 )
 from flask.ext.cors import CORS
-from models import Request, Result
+from models import Request, Result, RouteForm
 import utils
-from errors import AddressNotFoundError
+from errors import AddressNotFoundError, PathFinderError
 
 app = Flask(__name__)
 CORS(app)
@@ -12,6 +12,7 @@ CORS(app)
 ## Error handlers
 
 @app.errorhandler(AddressNotFoundError)
+@app.errorhandler(PathFinderError)
 def handle_address_not_found(error):
     response = jsonify(error.to_dict())
     response.status_code = error.status_code
@@ -20,9 +21,10 @@ def handle_address_not_found(error):
 @app.route('/')
 @app.route('/index')
 def index():
-    return render_template('index.html')
+    form = RouteForm()
+    return render_template('index.html', form=form)
 
-@app.route('/tbell_route', methods=['GET'])
+@app.route('/tbell_route', methods=['GET', 'POST'])
 def result():
     client = utils.get_client()
     data = request.values.to_dict()
@@ -39,7 +41,13 @@ def result():
         tbell_list,
         target
     )
-    return jsonify({'path': path})
+    if path:
+        path_dict = {'status': 'ok', 'path': path}
+    else:
+        raise PathFinderError('No path found')
+    query_url = utils.path_dict_to_embedded_query(path_dict)
+    return render_template('map.html', url=query_url,
+                           n_tbells=len(path_dict['path']) - 2)
 
 # TODO
 @app.route('/random', methods=['GET'])

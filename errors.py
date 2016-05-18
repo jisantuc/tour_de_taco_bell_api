@@ -1,4 +1,4 @@
-class AddressNotFoundError(Exception):
+class HTTPError(Exception):
     status_code = 400
 
     def __init__(self, message, status_code=None, payload=None):
@@ -11,3 +11,9 @@ class AddressNotFoundError(Exception):
         rv = dict(self.payload or ())
         rv['message'] = self.message
         return rv
+
+class AddressNotFoundError(HTTPError):
+    status_code = 500
+
+class PathFinderError(HTTPError):
+    status_code = 500

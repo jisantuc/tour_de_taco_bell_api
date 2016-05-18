@@ -3,6 +3,7 @@ import math
 import googlemaps
 
 from models import Request, Result
+from errors import PathFinderError
 
 # allowed difference between target distance and route distance
 TOLERANCE = 5
@@ -129,3 +130,28 @@ def choose_tbell_sequence(home_lat_lon, tbell_list, target_dist):
 
     path.append(home_lat_lon)
     return path
+
+def path_dict_to_embedded_query(path_dict):
+    """
+    Converts dict with 'path', 'status' keys into a url string that can be
+    sent to the google maps embed API
+    """
+
+    key = os.getenv('GMAPS_KEY', 'YOUR_KEY_HERE')
+
+    if path_dict['status'] != 'ok':
+        raise PathFinderError('Failed to find path')
+    base = (
+        'https://www.google.com/maps/embed/v1/directions'
+        '?key={KEY}'
+        '&origin={ORIGIN}'
+        '&destination={ORIGIN}'
+        '&mode=bicycling'
+        '&waypoints={WAYPOINTS}'
+    )
+
+    points = path_dict['path']
+    origin = ','.join(map(str, points[0]))
+    waypoints = '|'.join([','.join(map(str, p)) for p in points[1:-1]])
+
+    return base.format(KEY=key, ORIGIN=origin, WAYPOINTS=waypoints)

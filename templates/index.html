@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+
+<html>
+    <title>
+        Tour de Taco Bell
+    </title>
+
+    <head>
+    <link rel="stylesheet" href="{{ url_for('static', filename='stylesheet.css') }}" />
+    <center>
+        <img id="logo_image" src="{{ url_for('static', filename='logo.jpg') }}"/>
+    </center>
+
+    </head>
+
+    <body>
+        <center>
+            <form method="POST" action="/tbell_route">
+                <div>{{ form.address.label }}: {{ form.address(class="address_field") }}</div>
+                <div>{{ form.desired_route_distance.label }}: {{ form.desired_route_distance() }}</div>
+                <input type="submit">
+            </form>
+        </center>
+    </body>
+</html>

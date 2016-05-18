@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+<title>
+    'Your Taco Bell Ride'
+</title>
+
+<head>
+    <link rel="stylesheet" href="{{ url_for('static', filename='stylesheet.css') }}" />
+</head>
+
+<body>
+    <center>
+        <h2>
+            Here's a route through {{ n_tbells }} Taco Bells
+        </h2>
+        <div width=800 height=600>
+            <iframe src="{{ url }}" width=800 height=600></iframe>
+        </div>
+    </center>
+</body>
+
+</html>
