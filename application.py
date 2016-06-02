@@ -36,6 +36,7 @@ def result():
         raise AddressNotFoundError(data['address'], status_code=400)
     target = data['desired_route_distance']
     tbell_list = utils.tbell_finder(home_lat_lon, client)
+    target = utils.distance_str_to_miles(target)
     path = utils.choose_tbell_sequence(
         home_lat_lon,
         tbell_list,

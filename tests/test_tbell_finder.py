@@ -1,5 +1,6 @@
+import pytest
 from ..utils import (
-    nearest_tbell, haversine_distance
+    nearest_tbell, haversine_distance, distance_str_to_miles
 )
 
 tbells = [
@@ -61,3 +62,11 @@ def test_haversine():
     p2 = (39.999774, -75.153687)
 
     assert round(haversine_distance(p1, p2), 3) == 4.505
+
+def test_string_parse():
+    with pytest.raises(ValueError):
+        distance_str_to_miles('26.2.2')
+    assert distance_str_to_miles('26.2') == 26.2
+    assert distance_str_to_miles('26') == 26.0
+    assert distance_str_to_miles('2 6 . 2') == 26.2
+    assert distance_str_to_miles('     26.2        ') == 26.2

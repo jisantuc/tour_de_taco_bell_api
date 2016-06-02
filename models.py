@@ -45,7 +45,7 @@ class RouteForm(Form):
         [validators.Length(min=15, max=200), validators.Required()]
     )
     desired_route_distance = IntegerField(
-        'Tour de Taco Bell Length',
+        'Tour de Taco Bell Length (in miles)',
         [validators.Required(), validators.NumberRange(min=5, max=75)]
     )
 

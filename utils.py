@@ -1,4 +1,5 @@
 import os
+import re
 import math
 import googlemaps
 
@@ -13,6 +14,15 @@ TOLERANCE = 5
 def get_client():
     key = os.getenv('GMAPS_KEY', 'YOUR_KEY_HERE')
     return googlemaps.Client(key)
+
+def distance_str_to_miles(distance_str):
+    stripped = re.sub(r'\s', '', distance_str)
+    numbers = ''.join([
+        let for let in stripped if let.isdigit() or let == '.'
+    ])
+    if len(re.findall(r'\.', numbers)) > 1:
+        raise ValueError('Passed distance %s was bad' % stripped)
+    return float(numbers)
 
 def _distance(p1, p2):
     return math.sqrt(
@@ -88,7 +98,7 @@ def choose_next_tbell(home_lat_lon, start_lat_lon, tbell_list,
     def pen(p):
         route_dist = (cumul_dist + haversine_distance(p, start_lat_lon) +
                       haversine_distance(p, home_lat_lon))
-        return route_dist, abs(int(target_dist) - route_dist)
+        return route_dist, abs(target_dist - route_dist)
 
 
     closest_two_tbells = sorted(
@@ -114,7 +124,7 @@ def choose_tbell_sequence(home_lat_lon, tbell_list, target_dist):
 
     while pen > TOLERANCE:
         # don't want to choose more taco bells if we're already past target
-        if cumul_dist > int(target_dist) or not tbell_list:
+        if cumul_dist > target_dist or not tbell_list:
             break
         pen_tup, next_tbell = choose_next_tbell(
             home_lat_lon,
