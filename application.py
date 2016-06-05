@@ -4,7 +4,9 @@ from flask import (
 from flask.ext.cors import CORS
 from models import Request, Result, RouteForm
 import utils
-from errors import AddressNotFoundError, PathFinderError
+from errors import (
+    AddressNotFoundError, PathFinderError, TBellSearchError
+)
 
 application = Flask(__name__)
 CORS(application)
@@ -13,6 +15,7 @@ CORS(application)
 
 @application.errorhandler(AddressNotFoundError)
 @application.errorhandler(PathFinderError)
+@application.errorhandler(TBellSearchError)
 def handle_address_not_found(error):
     response = jsonify(error.to_dict())
     response.status_code = error.status_code
@@ -35,8 +38,8 @@ def result():
     else:
         raise AddressNotFoundError(data['address'], status_code=400)
     target = data['desired_route_distance']
-    tbell_list = utils.tbell_finder(home_lat_lon, client)
     target = utils.distance_str_to_miles(target)
+    tbell_list = utils.tbell_finder(home_lat_lon, target, client)
     path = utils.choose_tbell_sequence(
         home_lat_lon,
         tbell_list,
@@ -55,5 +58,5 @@ def result():
 def random_route():
     pass
 
-#if __name__ == '__main__':
-#    application.run(debug=True)
+if __name__ == '__main__':
+    application.run(debug=True)

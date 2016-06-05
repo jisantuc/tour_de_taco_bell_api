@@ -17,3 +17,6 @@ class AddressNotFoundError(HTTPError):
 
 class PathFinderError(HTTPError):
     status_code = 500
+
+class TBellSearchError(HTTPError):
+    status_code = 500

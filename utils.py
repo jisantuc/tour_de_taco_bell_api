@@ -1,10 +1,12 @@
 import os
 import re
 import math
+import time
 import googlemaps
+from flask import jsonify
 
 from models import Request, Result
-from errors import PathFinderError
+from errors import PathFinderError, TBellSearchError
 
 # allowed difference between target distance and route distance
 TOLERANCE = 5
@@ -56,20 +58,43 @@ def haversine_distance(p1, p2):
     c = 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))
     return c * mean_radius_of_earth
 
-
-def tbell_finder(start_lat_lon, client):
+def tbells_from_response(response):
     """
-    Returns a list of Taco Bells in a certain radius of the start address.
-    Default value is 25 miles.
+    Returns list of results from search for Taco Bells if the response
+    was ok, else the error message
     """
 
-    # 40233.6 is 25 miles in meters
-    response = client.places("taco bell", location=start_lat_lon,
-                             radius=40233.6)
     if response['status'] == 'OK':
         return response['results']
     else:
-        return 'error -- %s' % response['status']
+        raise TBellSearchError(
+            'Something went wrong searching for TacoBells',
+            payload=jsonify(response)
+        )
+
+def tbell_finder(start_lat_lon, target_dist, client):
+    """
+    Returns a list of Taco Bells in a certain radius of the start address.
+    Search radius scales as 2 * target_distance.
+    """
+
+    # 40233.6 is 25 miles in meters
+    taco_bells = []
+    radius = 40233.6 * target_dist / 25.
+    response = client.places("taco bell", location=start_lat_lon,
+                             radius=radius)
+    taco_bells.extend(tbells_from_response(response))
+    while 'next_page_token' in response:
+        time.sleep(2)
+        response = client.places(
+            "taco bell",
+            location=start_lat_lon,
+            radius=radius,
+            page_token=response['next_page_token']
+        )
+        taco_bells.extend(tbells_from_response(response))
+
+    return taco_bells
 
 def nearest_tbell(start_lat_lon, tbell_list):
     lat_lons = [lat_lon_from_tbell(x) for x in tbell_list]
@@ -158,6 +183,7 @@ def path_dict_to_embedded_query(path_dict):
         '&destination={ORIGIN}'
         '&mode=bicycling'
         '&waypoints={WAYPOINTS}'
+        '&avoid=ferries'
     )
 
     points = path_dict['path']
