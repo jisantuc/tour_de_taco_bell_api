@@ -45,9 +45,11 @@ tbells = [
      ]}
 ]
 
+
 def test_distance(tbells=tbells):
     start = (39.951, -75.210149)
     assert nearest_tbell(start, tbells) == tbells[0]
+
 
 def test_haversine():
     """
@@ -62,6 +64,7 @@ def test_haversine():
     p2 = (39.999774, -75.153687)
 
     assert round(haversine_distance(p1, p2), 3) == 4.505
+
 
 def test_string_parse():
     with pytest.raises(ValueError):

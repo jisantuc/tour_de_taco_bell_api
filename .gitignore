@@ -33,3 +33,8 @@ build
 .elasticbeanstalk/*
 !.elasticbeanstalk/*.cfg.yml
 !.elasticbeanstalk/*.global.yml
+
+# Generated files
+.bash_history
+.config
+.npm
